@@ -21,10 +21,11 @@ export function EmailDraftSection({ startup, founderEmail }: Props) {
   const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [emailType, setEmailType] = useState<"initial" | "followup" | "call-request">("initial");
+  const [language, setLanguage] = useState<"en" | "it">("en");
 
   function handleGenerate() {
     startTransition(async () => {
-      const result = await generateEmailDraft(startup.id, emailType);
+      const result = await generateEmailDraft(startup.id, emailType, language);
       setDraft(result);
     });
   }
@@ -86,6 +87,17 @@ export function EmailDraftSection({ startup, founderEmail }: Props) {
           Email Draft
         </h3>
         <div className="flex gap-2">
+          {/* Language toggle */}
+          <div className="flex rounded border border-zinc-700 overflow-hidden text-xs h-7">
+            <button
+              onClick={() => setLanguage("en")}
+              className={cn("px-2 transition-colors", language === "en" ? "bg-zinc-700 text-zinc-100" : "bg-zinc-900 text-zinc-500 hover:text-zinc-300")}
+            >EN</button>
+            <button
+              onClick={() => setLanguage("it")}
+              className={cn("px-2 transition-colors", language === "it" ? "bg-zinc-700 text-zinc-100" : "bg-zinc-900 text-zinc-500 hover:text-zinc-300")}
+            >IT</button>
+          </div>
           <select
             value={emailType}
             onChange={(e) => setEmailType(e.target.value as typeof emailType)}

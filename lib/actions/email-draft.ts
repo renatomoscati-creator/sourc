@@ -4,7 +4,8 @@ import { getStartupById } from "@/lib/db/queries/startups";
 
 export async function generateEmailDraft(
   startupId: number,
-  type: "initial" | "followup" | "call-request"
+  type: "initial" | "followup" | "call-request",
+  language: "en" | "it" = "en"
 ): Promise<{ subject: string; body: string }> {
   const startup = await getStartupById(startupId);
   if (!startup) throw new Error("Startup not found");
@@ -32,13 +33,85 @@ export async function generateEmailDraft(
     ? "it demonstrates a thoughtful approach to solving this problem"
     : "it aligns well with what we look for in early-stage companies";
 
+  const firstName = founderName.split(' ')[0];
   let subject = "";
   let body = "";
 
-  if (type === "initial") {
-    subject = `${startup.name} x Innovis VC — ${accelerator ? `${accelerator} ` : ""}${sector} Opportunity`;
+  if (language === "it") {
+    if (type === "initial") {
+      subject = `${startup.name} x Innovis VC — ${accelerator ? `${accelerator} ` : ""}Opportunità ${sector}`;
+      body = `Caro ${firstName},
 
-    body = `Dear ${founderName.split(' ')[0]},
+spero che tu stia bene.
+
+Mi chiamo Renato Moscati e faccio parte dell'hub Innovis VC a Milano. Ho scoperto di recente ${startup.name} e sono rimasto molto colpito da quello che state costruendo nel campo di ${product || problem || sector}. In particolare, ${specificDetail} ha attirato la mia attenzione, soprattutto perché ${whyItMatters}.
+
+${accelerator ? `È stato bello vedere che fate parte di ${accelerator}. ` : ""}Passo molto tempo ad analizzare aziende nelle fasi iniziali nel settore ${sector}, e ${startup.name} si è distinta per l'approccio e lo spazio che state affrontando.
+
+Mi piacerebbe saperne di più sulla vostra visione, roadmap e progressi attuali. Se siete aperti a un breve confronto, sarebbe bello organizzare una chiamata di 20 minuti o scambiarci qualche pensiero qui, come preferite.
+
+Cordiali saluti,
+Renato Moscati
+Innovis VC Milano
+renato.moscati@innovis.vc
+LinkedIn: https://www.linkedin.com/in/renato-moscati-b5a567328/`
+    }
+
+    if (type === "followup") {
+      subject = `Re: ${startup.name} — Aggiornamento`;
+      body = `Caro ${firstName},
+
+spero che tu stia bene.
+
+Volevo fare un follow-up sul mio messaggio precedente riguardo a ${startup.name}. Capisco che probabilmente siete concentrati sulla costruzione del prodotto e che il fundraising può passare in secondo piano — ma resto molto interessato a quello che state facendo nel settore ${sector}.
+
+${accelerator ? `Avendo seguito da vicino le aziende di ${accelerator}, conosco il calibro dei team che escono dal programma, e ${startup.name} si distingue chiaramente.` : ""}
+
+Se il momento non è quello giusto, mi farebbe comunque piacere restare in contatto e seguire la vostra crescita. Se invece siete in fase di raccolta fondi, apprezzerei l'opportunità di approfondire.
+
+Nessuna pressione — fammi sapere come preferisci procedere.
+
+Cordiali saluti,
+Renato Moscati
+Innovis VC Milano
+renato.moscati@innovis.vc
+LinkedIn: https://www.linkedin.com/in/renato-moscati-b5a567328/`
+    }
+
+    if (type === "call-request") {
+      subject = `${startup.name} / Innovis VC — Chiamata veloce?`;
+      body = `Caro ${firstName},
+
+spero che tu stia bene.
+
+Grazie per il collegamento. Mi piacerebbe organizzare una breve chiamata di 20 minuti per saperne di più su ${startup.name} e valutare una possibile collaborazione con Innovis VC.
+
+Qualcosa su di noi:
+• Investiamo nelle fasi pre-seed e seed
+• Siamo sector-agnostic ma con focus su opportunità in ${sector}
+• Agiamo rapidamente e possiamo guidare i round
+• Siamo partner operativi che rimangono a fianco delle aziende nel lungo periodo
+
+Sei disponibile per una chiamata la prossima settimana? Ecco alcuni orari che mi andrebbero bene (tutti CET):
+
+• Martedì 10:00–12:00
+• Mercoledì 14:00–17:00
+• Giovedì 09:00–11:00
+
+Se nessuno di questi dovesse andarti bene, proponimi pure un orario più comodo per te.
+
+A presto!
+
+Cordiali saluti,
+Renato Moscati
+Innovis VC Milano
+renato.moscati@innovis.vc
+LinkedIn: https://www.linkedin.com/in/renato-moscati-b5a567328/`
+    }
+  } else {
+    if (type === "initial") {
+      subject = `${startup.name} x Innovis VC — ${accelerator ? `${accelerator} ` : ""}${sector} Opportunity`;
+      body = `Dear ${firstName},
 
 I hope you are doing well.
 
@@ -53,12 +126,11 @@ Renato Moscati
 Innovis VC Milan
 renato.moscati@innovis.vc
 LinkedIn: https://www.linkedin.com/in/renato-moscati-b5a567328/`
-  }
+    }
 
-  if (type === "followup") {
-    subject = `Re: ${startup.name} — Following Up`;
-
-    body = `Dear ${founderName.split(' ')[0]},
+    if (type === "followup") {
+      subject = `Re: ${startup.name} — Following Up`;
+      body = `Dear ${firstName},
 
 I hope you are doing well.
 
@@ -75,12 +147,11 @@ Renato Moscati
 Innovis VC Milan
 renato.moscati@innovis.vc
 LinkedIn: https://www.linkedin.com/in/renato-moscati-b5a567328/`
-  }
+    }
 
-  if (type === "call-request") {
-    subject = `${startup.name} / Innovis VC — Quick Call?`;
-
-    body = `Dear ${founderName.split(' ')[0]},
+    if (type === "call-request") {
+      subject = `${startup.name} / Innovis VC — Quick Call?`;
+      body = `Dear ${firstName},
 
 I hope you are doing well.
 
@@ -107,6 +178,7 @@ Renato Moscati
 Innovis VC Milan
 renato.moscati@innovis.vc
 LinkedIn: https://www.linkedin.com/in/renato-moscati-b5a567328/`
+    }
   }
 
   return { subject, body };
