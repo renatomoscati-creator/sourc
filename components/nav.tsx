@@ -8,6 +8,7 @@ const links = [
   { href: "/", label: "Pipeline" },
   { href: "/startups", label: "Startups" },
   { href: "/sources", label: "Sources" },
+  { href: "/import-registro", label: "📋 Registro" },
 ];
 
 export function Nav() {
