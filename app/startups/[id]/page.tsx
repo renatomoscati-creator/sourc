@@ -9,6 +9,7 @@ import { AddOutreachDialog } from "@/components/add-outreach-dialog";
 import { AddCallNoteDialog } from "@/components/add-call-note-dialog";
 import { ScoringGrid } from "@/components/scoring-grid";
 import { BriefSection } from "@/components/brief-section";
+import { EditContactDialog } from "@/components/edit-contact-dialog";
 import { ChevronLeft, ExternalLink, Mail, Linkedin, Phone } from "lucide-react";
 
 interface Props {
@@ -102,7 +103,15 @@ export default async function StartupDetailPage({ params }: Props) {
               )}
               {/* Contact */}
               <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3 space-y-1.5">
-                <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Contact</p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Contact</p>
+                  <EditContactDialog
+                    startupId={startup.id}
+                    contactEmail={startup.contactEmail}
+                    contactPhone={startup.contactPhone}
+                    contactLinkedin={startup.contactLinkedin}
+                  />
+                </div>
                 {startup.contactEmail ? (
                   <a href={`mailto:${startup.contactEmail}`} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors">
                     <Mail className="h-3 w-3" />{startup.contactEmail}
