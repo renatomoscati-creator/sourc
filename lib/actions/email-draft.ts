@@ -39,18 +39,19 @@ export async function generateEmailDraft(
 
   if (language === "it") {
     if (type === "initial") {
-      subject = `${startup.name} x Innovis VC — ${accelerator ? `${accelerator} ` : ""}Opportunità ${sector}`;
-      body = `Caro ${firstName},
+      subject = `Interesse per ${startup.name} | Innovis VC`;
+      body = `Gentile team di ${startup.name},
 
-spero che tu stia bene.
+mi chiamo Renato Moscati e faccio parte di Innovis VC a Milano.
 
-Mi chiamo Renato Moscati e faccio parte dell'hub Innovis VC a Milano. Ho scoperto di recente ${startup.name} e sono rimasto molto colpito da quello che state costruendo nel campo di ${product || problem || sector}. In particolare, ${specificDetail} ha attirato la mia attenzione, soprattutto perché ${whyItMatters}.
+Ho recentemente approfondito ${startup.name} e ho trovato molto interessante il vostro lavoro nell'ambito di ${product || problem || sector}. Il tema che state affrontando, unito all'approccio tecnologico che state sviluppando, è pienamente in linea con le aree che monitoriamo con maggiore attenzione nel panorama early-stage.
 
-${accelerator ? `È stato bello vedere che fate parte di ${accelerator}. ` : ""}Passo molto tempo ad analizzare aziende nelle fasi iniziali nel settore ${sector}, e ${startup.name} si è distinta per l'approccio e lo spazio che state affrontando.
+${accelerator ? `Ho notato anche il vostro percorso in ${accelerator}, che ha reso il progetto ancora più interessante ai nostri occhi.\n\n` : ""}Mi farebbe piacere capire meglio la vostra visione, i principali sviluppi raggiunti finora e le prossime tappe della roadmap. Nel caso foste disponibili, sarei contento di organizzare una breve call introduttiva, oppure di ricevere qualche informazione via email.
 
-Mi piacerebbe saperne di più sulla vostra visione, roadmap e progressi attuali. Se siete aperti a un breve confronto, sarebbe bello organizzare una chiamata di 20 minuti o scambiarci qualche pensiero qui, come preferite.
+Grazie in anticipo per l'attenzione.
 
 Cordiali saluti,
+
 Renato Moscati
 Innovis VC Milano
 renato.moscati@innovis.vc

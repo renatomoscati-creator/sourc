@@ -21,7 +21,7 @@ export function EmailDraftSection({ startup, founderEmail }: Props) {
   const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [emailType, setEmailType] = useState<"initial" | "followup" | "call-request">("initial");
-  const [language, setLanguage] = useState<"en" | "it">("en");
+  const [language, setLanguage] = useState<"en" | "it">("it");
 
   function handleGenerate() {
     startTransition(async () => {
