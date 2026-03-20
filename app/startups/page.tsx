@@ -19,10 +19,12 @@ const statusColors: Record<string, string> = {
   "Under Review": "bg-purple-950 text-purple-300",
   "Selected for Presentation": "bg-emerald-950 text-emerald-300",
   "Rejected/Archived": "bg-zinc-900 text-zinc-600",
+  "Hell No": "bg-red-950 text-red-700",
+  "Already Sourced": "bg-zinc-900 text-zinc-600",
 };
 
 interface Props {
-  searchParams: Promise<{ stage?: string; sector?: string; sourceId?: string; search?: string; hasContacts?: string; sortBy?: SortField; sortOrder?: SortOrder }>;
+  searchParams: Promise<{ stage?: string; sector?: string; sourceId?: string; search?: string; hasContacts?: string; sortBy?: SortField; sortOrder?: SortOrder; showHidden?: string; status?: string }>;
 }
 
 export default async function StartupsPage({ searchParams }: Props) {
@@ -33,9 +35,11 @@ export default async function StartupsPage({ searchParams }: Props) {
       sector: params.sector,
       sourceId: params.sourceId ? Number(params.sourceId) : undefined,
       search: params.search,
+      status: params.status,
       hasContacts: params.hasContacts === "1",
       sortBy: params.sortBy,
       sortOrder: params.sortOrder,
+      showHidden: params.showHidden === "1",
     }),
     getDistinctSectors(),
     getSources(),
@@ -146,6 +150,19 @@ export default async function StartupsPage({ searchParams }: Props) {
             ))}
           </div>
         )}
+        {/* Show hidden toggle */}
+        <Link
+          href={buildUrl({ showHidden: params.showHidden === "1" ? undefined : "1" })}
+          className={cn(
+            "flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md border transition-colors",
+            params.showHidden === "1"
+              ? "bg-zinc-700 border-zinc-600 text-zinc-100"
+              : "border-zinc-700 text-zinc-500 hover:text-zinc-400"
+          )}
+        >
+          Show hidden (Hell No / Already Sourced)
+        </Link>
+
         {/* Has contacts filter */}
         <Link
           href={buildUrl({ hasContacts: params.hasContacts === "1" ? undefined : "1" })}

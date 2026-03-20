@@ -13,6 +13,8 @@ export const PIPELINE_STAGES = [
   "Under Review",
   "Selected for Presentation",
   "Rejected/Archived",
+  "Hell No",
+  "Already Sourced",
 ] as const;
 
 export type PipelineStage = (typeof PIPELINE_STAGES)[number];
@@ -85,6 +87,7 @@ export const startups = sqliteTable("startups", {
   priorityScore: real("priority_score"),
   status: text("status").notNull().default("New"),
   recommendation: text("recommendation").default("TBD"),
+  hiddenReason: text("hidden_reason"),
   notes: text("notes"),
   pros: text("pros"),
   cons: text("cons"),

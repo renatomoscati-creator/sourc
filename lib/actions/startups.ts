@@ -100,6 +100,7 @@ export async function updateStartup(id: number, data: Partial<typeof startups.$i
       contactEmail: data.contactEmail?.trim() || null,
       contactPhone: data.contactPhone?.trim() || null,
       contactLinkedin: data.contactLinkedin?.trim() || null,
+      hiddenReason: data.hiddenReason?.trim() || null,
       updatedAt: new Date(),
     })
     .where(eq(startups.id, id));
@@ -109,10 +110,10 @@ export async function updateStartup(id: number, data: Partial<typeof startups.$i
   revalidatePath(`/startups/${id}`);
 }
 
-export async function updateStartupStatus(id: number, status: string) {
+export async function updateStartupStatus(id: number, status: string, hiddenReason?: string | null) {
   await db
     .update(startups)
-    .set({ status, updatedAt: new Date() })
+    .set({ status, hiddenReason: hiddenReason?.trim() || null, updatedAt: new Date() })
     .where(eq(startups.id, id));
   revalidatePath("/");
   revalidatePath("/startups");

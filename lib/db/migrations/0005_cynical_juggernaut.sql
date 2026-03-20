@@ -1,0 +1,1 @@
+ALTER TABLE `startups` ADD `hidden_reason` text;

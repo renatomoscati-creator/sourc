@@ -17,6 +17,7 @@ export async function getStartups(filters?: {
   hasContacts?: boolean;
   sortBy?: SortField;
   sortOrder?: SortOrder;
+  showHidden?: boolean;
 }) {
   const sortField = filters?.sortBy ?? "updatedAt";
   const sortOrder = filters?.sortOrder ?? "desc";
@@ -61,6 +62,10 @@ export async function getStartups(filters?: {
   }
   if (filters?.hasContacts) {
     filtered = filtered.filter((s) => s.contactEmail || s.contactPhone || s.contactLinkedin);
+  }
+
+  if (!filters?.showHidden && !filters?.status) {
+    filtered = filtered.filter(s => s.status !== "Hell No" && s.status !== "Already Sourced");
   }
 
   return filtered;
