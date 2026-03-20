@@ -13,6 +13,7 @@ import { ScoringGrid } from "@/components/scoring-grid";
 import { BriefSection } from "@/components/brief-section";
 import { EditContactDialog } from "@/components/edit-contact-dialog";
 import { NotesSection } from "@/components/notes-section";
+import { FoundedYearField } from "@/components/founded-year-field";
 import { ChevronLeft, ExternalLink, Mail, Linkedin, Phone } from "lucide-react";
 
 interface Props {
@@ -96,7 +97,7 @@ export default async function StartupDetailPage({ params }: Props) {
                 <Field label="Business model" value={startup.businessModel} />
                 <Field label="Traction" value={startup.traction} />
                 <Field label="Funding status" value={startup.fundingStatus} />
-                <Field label="Founded" value={startup.foundedYear} />
+                <FoundedYearField startupId={startup.id} value={startup.foundedYear} />
               </div>
               {startup.notes && (
                 <div>
