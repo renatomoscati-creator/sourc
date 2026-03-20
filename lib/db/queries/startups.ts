@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { startups, outreachEvents, callNotes } from "@/lib/db/schema";
-import { eq, desc, asc, type SQL } from "drizzle-orm";
+import { eq, desc, asc, lte, or, and, type SQL } from "drizzle-orm";
 
 export type StartupWithRelations = Awaited<ReturnType<typeof getStartupById>>;
 export type StartupRow = Awaited<ReturnType<typeof getStartups>>[0];
@@ -95,4 +95,31 @@ export async function getDistinctSectors(): Promise<string[]> {
   const rows = await db.query.startups.findMany({ columns: { sector: true } });
   const sectors = [...new Set(rows.map((r) => r.sector).filter(Boolean))] as string[];
   return sectors.sort();
+}
+
+export async function getStaleOutreach() {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+  return db
+    .select({
+      outreachId: outreachEvents.id,
+      startupId: startups.id,
+      startupName: startups.name,
+      date: outreachEvents.date,
+      channel: outreachEvents.channel,
+      messageType: outreachEvents.messageType,
+    })
+    .from(outreachEvents)
+    .innerJoin(startups, eq(outreachEvents.startupId, startups.id))
+    .where(
+      and(
+        or(
+          eq(outreachEvents.status, "Outreach Sent"),
+          eq(outreachEvents.status, "Follow-up Sent")
+        ),
+        lte(outreachEvents.date, yesterdayStr)
+      )
+    );
 }

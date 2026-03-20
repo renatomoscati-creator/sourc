@@ -1,21 +1,24 @@
 export const dynamic = "force-dynamic";
 
-import { getStartupsGroupedByStatus, type StartupRow } from "@/lib/db/queries/startups";
+import { getStartupsGroupedByStatus, getStaleOutreach, type StartupRow } from "@/lib/db/queries/startups";
 import { getSources } from "@/lib/db/queries/sources";
 import { PIPELINE_STAGES } from "@/lib/db/schema";
 import { StartupCard } from "@/components/startup-card";
 import { AddStartupDialog } from "@/components/add-startup-dialog";
+import { StaleOutreachBanner } from "@/components/stale-outreach-banner";
 
 export default async function PipelinePage() {
-  const [grouped, sources] = await Promise.all([
+  const [grouped, sources, staleItems] = await Promise.all([
     getStartupsGroupedByStatus(),
     getSources(),
+    getStaleOutreach(),
   ]);
 
   const totalCount = Object.values(grouped).reduce((s, arr) => s + (arr as StartupRow[]).length, 0);
 
   return (
     <div className="max-w-screen-2xl mx-auto px-6 py-6">
+      <StaleOutreachBanner items={staleItems} />
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>

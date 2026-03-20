@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { startups, startupSources } from "@/lib/db/schema";
+import { startups, startupSources, outreachEvents } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
 type ScoringData = {
@@ -131,6 +131,25 @@ export async function linkSource(startupId: number, sourceId: number) {
     .values({ startupId, sourceId })
     .onConflictDoNothing();
   revalidatePath(`/startups/${startupId}`);
+}
+
+export async function resolveStaleOutreach(
+  outreachId: number,
+  resolution: "followup" | "pending" | "closed"
+) {
+  const statusMap = {
+    followup: "Follow-up Sent",
+    pending: "No Response",
+    closed: "Closed",
+  } as const;
+
+  await db
+    .update(outreachEvents)
+    .set({ status: statusMap[resolution] })
+    .where(eq(outreachEvents.id, outreachId));
+
+  revalidatePath("/");
+  revalidatePath("/startups");
 }
 
 export async function unlinkSource(startupId: number, sourceId: number) {
