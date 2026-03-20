@@ -19,7 +19,7 @@ type ScoringData = {
 };
 
 function calcPriorityScore(data: ScoringData): number | null {
-  const values = [
+  const allValues = [
     data.scoreRelevance,
     data.scoreStageFit,
     data.scoreSourceQuality,
@@ -31,8 +31,12 @@ function calcPriorityScore(data: ScoringData): number | null {
     data.scoreFounderResponsiveness,
     data.scoreOverallConviction,
   ].filter((v): v is number => v != null);
-  if (values.length === 0) return null;
-  return Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10;
+  if (allValues.length === 0) return null;
+  const avg = allValues.reduce((a, b) => a + b, 0) / allValues.length;
+  const conviction = data.scoreOverallConviction;
+  // 66% average of all scores, 33% overall conviction (falls back to avg if not set)
+  const weighted = avg * 0.66 + (conviction ?? avg) * 0.34;
+  return Math.round(weighted * 10) / 10;
 }
 
 export async function createStartup(formData: FormData) {
