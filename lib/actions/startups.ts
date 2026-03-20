@@ -92,7 +92,11 @@ export async function updateStartup(id: number, data: Partial<typeof startups.$i
   if (hasScoringUpdate) {
     const current = await db.query.startups.findFirst({ where: eq(startups.id, id) });
     if (current) {
-      const merged = { ...current, ...scoring };
+      // Only merge defined values — avoid overwriting existing scores with undefined
+      const definedScoring = Object.fromEntries(
+        Object.entries(scoring).filter(([, v]) => v !== undefined)
+      );
+      const merged = { ...current, ...definedScoring };
       data.priorityScore = calcPriorityScore(merged) ?? undefined;
     }
   }
