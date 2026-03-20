@@ -11,6 +11,7 @@ export async function getStartups(filters?: {
   sourceId?: number;
   search?: string;
   status?: string;
+  hasContacts?: boolean;
 }) {
   const rows = await db.query.startups.findMany({
     with: {
@@ -44,6 +45,9 @@ export async function getStartups(filters?: {
     filtered = filtered.filter((s) =>
       s.startupSources.some((ss) => ss.sourceId === filters.sourceId)
     );
+  }
+  if (filters?.hasContacts) {
+    filtered = filtered.filter((s) => s.contactEmail || s.contactPhone || s.contactLinkedin);
   }
 
   return filtered;

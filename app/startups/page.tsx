@@ -7,6 +7,7 @@ import { PIPELINE_STAGES, STARTUP_STAGES } from "@/lib/db/schema";
 import { AddStartupDialog } from "@/components/add-startup-dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Mail, Phone, Linkedin } from "lucide-react";
 
 const statusColors: Record<string, string> = {
   "New": "bg-zinc-800 text-zinc-400",
@@ -21,7 +22,7 @@ const statusColors: Record<string, string> = {
 };
 
 interface Props {
-  searchParams: Promise<{ stage?: string; sector?: string; sourceId?: string; search?: string }>;
+  searchParams: Promise<{ stage?: string; sector?: string; sourceId?: string; search?: string; hasContacts?: string }>;
 }
 
 export default async function StartupsPage({ searchParams }: Props) {
@@ -32,6 +33,7 @@ export default async function StartupsPage({ searchParams }: Props) {
       sector: params.sector,
       sourceId: params.sourceId ? Number(params.sourceId) : undefined,
       search: params.search,
+      hasContacts: params.hasContacts === "1",
     }),
     getDistinctSectors(),
     getSources(),
@@ -101,6 +103,19 @@ export default async function StartupsPage({ searchParams }: Props) {
             ))}
           </div>
         )}
+        {/* Has contacts filter */}
+        <Link
+          href={buildUrl({ hasContacts: params.hasContacts === "1" ? undefined : "1" })}
+          className={cn(
+            "flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md border transition-colors",
+            params.hasContacts === "1"
+              ? "bg-emerald-950 border-emerald-700 text-emerald-300"
+              : "border-zinc-700 text-zinc-400 hover:text-zinc-200"
+          )}
+        >
+          <Mail className="h-3 w-3" />
+          Has contacts
+        </Link>
       </div>
 
       {/* Table */}
@@ -119,6 +134,7 @@ export default async function StartupsPage({ searchParams }: Props) {
                 <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Sector</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Source</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Status</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Contacts</th>
                 <th className="text-right px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Score</th>
               </tr>
             </thead>
@@ -151,6 +167,13 @@ export default async function StartupsPage({ searchParams }: Props) {
                     )}>
                       {s.status}
                     </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <Mail className={cn("h-3 w-3", s.contactEmail ? "text-emerald-400" : "text-zinc-800")} />
+                      <Phone className={cn("h-3 w-3", s.contactPhone ? "text-emerald-400" : "text-zinc-800")} />
+                      <Linkedin className={cn("h-3 w-3", s.contactLinkedin ? "text-emerald-400" : "text-zinc-800")} />
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-zinc-300">
                     {s.priorityScore != null ? s.priorityScore : <span className="text-zinc-700">—</span>}
