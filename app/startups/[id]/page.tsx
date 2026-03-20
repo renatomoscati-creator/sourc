@@ -12,6 +12,7 @@ import { EmailDraftSection } from "@/components/email-draft-section";
 import { ScoringGrid } from "@/components/scoring-grid";
 import { BriefSection } from "@/components/brief-section";
 import { EditContactDialog } from "@/components/edit-contact-dialog";
+import { NotesSection } from "@/components/notes-section";
 import { ChevronLeft, ExternalLink, Mail, Linkedin, Phone } from "lucide-react";
 
 interface Props {
@@ -255,6 +256,16 @@ export default async function StartupDetailPage({ params }: Props) {
                 ))}
               </div>
             )}
+          </Section>
+
+          {/* Notes / Pros / Cons */}
+          <Section title="">
+            <NotesSection
+              startupId={startup.id}
+              notes={startup.notes}
+              pros={startup.pros}
+              cons={startup.cons}
+            />
           </Section>
 
           {/* Brief */}

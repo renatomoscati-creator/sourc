@@ -86,6 +86,8 @@ export const startups = sqliteTable("startups", {
   status: text("status").notNull().default("New"),
   recommendation: text("recommendation").default("TBD"),
   notes: text("notes"),
+  pros: text("pros"),
+  cons: text("cons"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),
