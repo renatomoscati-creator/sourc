@@ -101,26 +101,30 @@ export default async function StartupDetailPage({ params }: Props) {
                 </div>
               )}
               {/* Contact */}
-              {(startup.contactEmail || startup.contactPhone || startup.contactLinkedin) && (
-                <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3 space-y-1.5">
-                  <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Contact</p>
-                  {startup.contactEmail && (
-                    <a href={`mailto:${startup.contactEmail}`} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors">
-                      <Mail className="h-3 w-3" />{startup.contactEmail}
-                    </a>
-                  )}
-                  {startup.contactPhone && (
-                    <a href={`tel:${startup.contactPhone}`} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors">
-                      <Phone className="h-3 w-3" />{startup.contactPhone}
-                    </a>
-                  )}
-                  {startup.contactLinkedin && (
-                    <a href={startup.contactLinkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors">
-                      <Linkedin className="h-3 w-3" />{startup.contactLinkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/company\//, "").replace(/\/$/, "")}
-                    </a>
-                  )}
-                </div>
-              )}
+              <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3 space-y-1.5">
+                <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Contact</p>
+                {startup.contactEmail ? (
+                  <a href={`mailto:${startup.contactEmail}`} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors">
+                    <Mail className="h-3 w-3" />{startup.contactEmail}
+                  </a>
+                ) : (
+                  <p className="flex items-center gap-1.5 text-xs text-zinc-700"><Mail className="h-3 w-3" />No email</p>
+                )}
+                {startup.contactPhone ? (
+                  <a href={`tel:${startup.contactPhone}`} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors">
+                    <Phone className="h-3 w-3" />{startup.contactPhone}
+                  </a>
+                ) : (
+                  <p className="flex items-center gap-1.5 text-xs text-zinc-700"><Phone className="h-3 w-3" />No phone</p>
+                )}
+                {startup.contactLinkedin ? (
+                  <a href={startup.contactLinkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors">
+                    <Linkedin className="h-3 w-3" />{startup.contactLinkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/company\//, "").replace(/\/$/, "")}
+                  </a>
+                ) : (
+                  <p className="flex items-center gap-1.5 text-xs text-zinc-700"><Linkedin className="h-3 w-3" />No LinkedIn</p>
+                )}
+              </div>
             </div>
           </Section>
 
