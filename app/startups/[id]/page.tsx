@@ -78,7 +78,14 @@ export default async function StartupDetailPage({ params }: Props) {
               {startup.accelerator && <span className="text-emerald-600">{startup.accelerator}</span>}
             </div>
           </div>
-          <StatusSelect startupId={startup.id} currentStatus={startup.status} />
+          <div className="flex flex-col items-end gap-1">
+            <StatusSelect startupId={startup.id} currentStatus={startup.status} />
+            {startup.status === "Hell No" && startup.hiddenReason && (
+              <p className="text-xs text-red-400/80 max-w-xs text-right italic">
+                "{startup.hiddenReason}"
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
