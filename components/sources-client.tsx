@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { createSource, deleteSource } from "@/lib/actions/sources";
 import { SOURCE_TYPES } from "@/lib/db/schema";
 import type { getSources } from "@/lib/db/queries/sources";
-import { Plus, Trash2, ExternalLink } from "lucide-react";
+import { ImportFromUrlDialog } from "@/components/import-from-url-dialog";
+import { Plus, Trash2, ExternalLink, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Source = Awaited<ReturnType<typeof getSources>>[0];
@@ -75,6 +76,14 @@ function AddSourceDialog() {
 
 interface Props { sources: Source[] }
 
+async function openClaude(sourceName: string, sourceUrl: string) {
+  await fetch("/api/open-claude", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sourceName, sourceUrl }),
+  });
+}
+
 export function SourcesClient({ sources }: Props) {
   const [isPending, startTransition] = useTransition();
 
@@ -103,6 +112,7 @@ export function SourcesClient({ sources }: Props) {
                 <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Type</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Geography</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Notes</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Import</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -126,6 +136,29 @@ export function SourcesClient({ sources }: Props) {
                   </td>
                   <td className="px-4 py-3 text-xs text-zinc-500">{s.geographyRelevance ?? "—"}</td>
                   <td className="px-4 py-3 text-xs text-zinc-600 max-w-xs truncate">{s.notes ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      {s.url && (
+                        <ImportFromUrlDialog
+                          sourceId={s.id}
+                          sourceName={s.name}
+                          sourceUrl={s.url}
+                        />
+                      )}
+                      {s.url && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-1.5 h-8 text-xs"
+                          onClick={() => openClaude(s.name, s.url!)}
+                          title="Open in Claude Code (for LinkedIn / gated sites)"
+                        >
+                          <Bot className="h-3.5 w-3.5" />
+                          Claude
+                        </Button>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-4 py-3">
                     <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-zinc-700 hover:text-red-400"
                       onClick={() => handleDelete(s.id)} disabled={isPending}>
