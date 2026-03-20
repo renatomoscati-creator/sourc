@@ -12,6 +12,7 @@ import { EmailDraftSection } from "@/components/email-draft-section";
 import { ScoringGrid } from "@/components/scoring-grid";
 import { BriefSection } from "@/components/brief-section";
 import { EditContactDialog } from "@/components/edit-contact-dialog";
+import { EditStartupDialog } from "@/components/edit-startup-dialog";
 import { NotesSection } from "@/components/notes-section";
 import { FoundedYearField } from "@/components/founded-year-field";
 import { ChevronLeft, ExternalLink, Mail, Linkedin, Phone } from "lucide-react";
@@ -86,7 +87,7 @@ export default async function StartupDetailPage({ params }: Props) {
         {/* LEFT: Profile + Scoring */}
         <div className="space-y-8">
           {/* Profile */}
-          <Section title="Profile">
+          <Section title="Profile" action={<EditStartupDialog startup={startup} />}>
             <div className="space-y-4">
               {startup.description && (
                 <p className="text-sm text-zinc-300 leading-relaxed">{startup.description}</p>
