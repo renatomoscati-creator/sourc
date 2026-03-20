@@ -110,26 +110,29 @@ export default async function StartupDetailPage({ params }: Props) {
             ) : (
               <div className="space-y-3">
                 {startup.founders.map((f) => (
-                  <div key={f.id} className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3">
+                  <div key={f.id} className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3 space-y-2">
                     <div className="flex items-center justify-between">
                       <div>
                         <span className="text-sm font-medium text-zinc-100">{f.name}</span>
                         {f.title && <span className="text-xs text-zinc-500 ml-2">{f.title}</span>}
                       </div>
-                      <div className="flex gap-2">
-                        {f.email && (
-                          <a href={`mailto:${f.email}`} className="text-zinc-600 hover:text-zinc-300">
-                            <Mail className="h-3.5 w-3.5" />
-                          </a>
-                        )}
-                        {f.linkedin && (
-                          <a href={f.linkedin} target="_blank" rel="noopener noreferrer" className="text-zinc-600 hover:text-zinc-300">
-                            <Linkedin className="h-3.5 w-3.5" />
-                          </a>
-                        )}
-                      </div>
                     </div>
-                    {f.notes && <p className="text-xs text-zinc-500 mt-1">{f.notes}</p>}
+                    {f.email && (
+                      <a href={`mailto:${f.email}`} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors w-fit">
+                        <Mail className="h-3 w-3 flex-shrink-0" />
+                        {f.email}
+                      </a>
+                    )}
+                    {f.linkedin && (
+                      <a href={f.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors w-fit">
+                        <Linkedin className="h-3 w-3 flex-shrink-0" />
+                        {f.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//, "").replace(/\/$/, "")}
+                      </a>
+                    )}
+                    {!f.email && !f.linkedin && (
+                      <p className="text-xs text-zinc-700 italic">No contact info — edit to add email or LinkedIn</p>
+                    )}
+                    {f.notes && <p className="text-xs text-zinc-500 border-t border-zinc-800 pt-2 mt-1">{f.notes}</p>}
                   </div>
                 ))}
               </div>
@@ -162,7 +165,21 @@ export default async function StartupDetailPage({ params }: Props) {
                         {ev.status}
                       </span>
                     </div>
-                    {ev.founder && <div className="text-zinc-600">{ev.founder.name}</div>}
+                    {ev.founder && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-zinc-500">{ev.founder.name}</span>
+                        {ev.founder.email && (
+                          <a href={`mailto:${ev.founder.email}`} className="flex items-center gap-1 text-zinc-600 hover:text-zinc-300 transition-colors">
+                            <Mail className="h-3 w-3" />{ev.founder.email}
+                          </a>
+                        )}
+                        {ev.founder.linkedin && (
+                          <a href={ev.founder.linkedin} target="_blank" rel="noopener noreferrer" className="text-zinc-600 hover:text-zinc-300 transition-colors">
+                            <Linkedin className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
+                    )}
                     {ev.notes && <p className="text-zinc-400 mt-1">{ev.notes}</p>}
                     {ev.followUpDate && (
                       <p className="text-zinc-600 mt-1">Follow-up: {ev.followUpDate}</p>
