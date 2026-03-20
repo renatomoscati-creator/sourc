@@ -1,9 +1,12 @@
 import { db } from "@/lib/db";
 import { startups, outreachEvents, callNotes } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, asc, type SQL } from "drizzle-orm";
 
 export type StartupWithRelations = Awaited<ReturnType<typeof getStartupById>>;
 export type StartupRow = Awaited<ReturnType<typeof getStartups>>[0];
+
+export type SortField = "name" | "stage" | "sector" | "status" | "priorityScore" | "updatedAt";
+export type SortOrder = "asc" | "desc";
 
 export async function getStartups(filters?: {
   stage?: string;
@@ -12,13 +15,23 @@ export async function getStartups(filters?: {
   search?: string;
   status?: string;
   hasContacts?: boolean;
+  sortBy?: SortField;
+  sortOrder?: SortOrder;
 }) {
+  const sortField = filters?.sortBy ?? "updatedAt";
+  const sortOrder = filters?.sortOrder ?? "desc";
+  
+  const getOrderBy = (): SQL => {
+    const column = startups[sortField];
+    return sortOrder === "asc" ? asc(column) : desc(column);
+  };
+
   const rows = await db.query.startups.findMany({
     with: {
       founders: true,
       startupSources: { with: { source: true } },
     },
-    orderBy: [desc(startups.updatedAt)],
+    orderBy: [getOrderBy()],
   });
 
   let filtered = rows;

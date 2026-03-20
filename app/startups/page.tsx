@@ -1,13 +1,13 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { getStartups, getDistinctSectors } from "@/lib/db/queries/startups";
+import { getStartups, getDistinctSectors, type SortField, type SortOrder } from "@/lib/db/queries/startups";
 import { getSources } from "@/lib/db/queries/sources";
 import { PIPELINE_STAGES, STARTUP_STAGES } from "@/lib/db/schema";
 import { AddStartupDialog } from "@/components/add-startup-dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Mail, Phone, Linkedin } from "lucide-react";
+import { Mail, Phone, Linkedin, ChevronUp, ChevronDown } from "lucide-react";
 
 const statusColors: Record<string, string> = {
   "New": "bg-zinc-800 text-zinc-400",
@@ -22,7 +22,7 @@ const statusColors: Record<string, string> = {
 };
 
 interface Props {
-  searchParams: Promise<{ stage?: string; sector?: string; sourceId?: string; search?: string; hasContacts?: string }>;
+  searchParams: Promise<{ stage?: string; sector?: string; sourceId?: string; search?: string; hasContacts?: string; sortBy?: SortField; sortOrder?: SortOrder }>;
 }
 
 export default async function StartupsPage({ searchParams }: Props) {
@@ -34,6 +34,8 @@ export default async function StartupsPage({ searchParams }: Props) {
       sourceId: params.sourceId ? Number(params.sourceId) : undefined,
       search: params.search,
       hasContacts: params.hasContacts === "1",
+      sortBy: params.sortBy,
+      sortOrder: params.sortOrder,
     }),
     getDistinctSectors(),
     getSources(),
@@ -46,6 +48,47 @@ export default async function StartupsPage({ searchParams }: Props) {
       if (v) p.set(k, v);
     }
     return `/startups?${p.toString()}`;
+  }
+
+  function SortIcon({ field }: { field: SortField }) {
+    if (params.sortBy !== field) return <span className="w-3 h-3 inline-block" />;
+    return params.sortOrder === "asc" 
+      ? <ChevronUp className="w-3 h-3 inline-block" />
+      : <ChevronDown className="w-3 h-3 inline-block" />;
+  }
+
+  function SortHeader({ field, children }: { field: SortField; children: React.ReactNode }) {
+    const isActive = params.sortBy === field;
+    const nextOrder: SortOrder = (params.sortOrder === "asc" || !params.sortOrder) ? "desc" : "asc";
+    const currentOrder = isActive ? params.sortOrder : undefined;
+
+    return (
+      <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+        <form
+          method="GET"
+          action="/startups"
+          className="inline-flex items-center gap-1 hover:text-zinc-200 transition-colors cursor-pointer"
+        >
+          {params.stage && <input type="hidden" name="stage" value={params.stage} />}
+          {params.sector && <input type="hidden" name="sector" value={params.sector} />}
+          {params.sourceId && <input type="hidden" name="sourceId" value={params.sourceId} />}
+          {params.search && <input type="hidden" name="search" value={params.search} />}
+          {params.hasContacts && <input type="hidden" name="hasContacts" value={params.hasContacts} />}
+          <input type="hidden" name="sortBy" value={field} />
+          <input type="hidden" name="sortOrder" value={isActive ? nextOrder : "desc"} />
+          <button
+            type="submit"
+            className={cn(
+              "flex items-center gap-1 hover:text-zinc-200 transition-colors cursor-pointer text-left",
+              isActive && "text-zinc-200"
+            )}
+          >
+            {children}
+            <SortIcon field={field} />
+          </button>
+        </form>
+      </th>
+    );
   }
 
   return (
@@ -129,13 +172,13 @@ export default async function StartupsPage({ searchParams }: Props) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-800 bg-zinc-900/60">
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Name</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Stage</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Sector</th>
+                <SortHeader field="name">Name</SortHeader>
+                <SortHeader field="stage">Stage</SortHeader>
+                <SortHeader field="sector">Sector</SortHeader>
                 <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Source</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Status</th>
+                <SortHeader field="status">Status</SortHeader>
                 <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Contacts</th>
-                <th className="text-right px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Score</th>
+                <SortHeader field="priorityScore">Score</SortHeader>
               </tr>
             </thead>
             <tbody>

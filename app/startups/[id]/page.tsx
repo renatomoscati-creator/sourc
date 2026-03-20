@@ -5,8 +5,10 @@ import Link from "next/link";
 import { getStartupById } from "@/lib/db/queries/startups";
 import { StatusSelect } from "@/components/status-select";
 import { AddFounderDialog } from "@/components/add-founder-dialog";
+import { EditFounderDialog } from "@/components/edit-founder-dialog";
 import { AddOutreachDialog } from "@/components/add-outreach-dialog";
 import { AddCallNoteDialog } from "@/components/add-call-note-dialog";
+import { EmailDraftSection } from "@/components/email-draft-section";
 import { ScoringGrid } from "@/components/scoring-grid";
 import { BriefSection } from "@/components/brief-section";
 import { EditContactDialog } from "@/components/edit-contact-dialog";
@@ -150,6 +152,7 @@ export default async function StartupDetailPage({ params }: Props) {
                         <span className="text-sm font-medium text-zinc-100">{f.name}</span>
                         {f.title && <span className="text-xs text-zinc-500 ml-2">{f.title}</span>}
                       </div>
+                      <EditFounderDialog founder={f} startupId={startup.id} />
                     </div>
                     {f.email && (
                       <a href={`mailto:${f.email}`} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors w-fit">
@@ -256,6 +259,12 @@ export default async function StartupDetailPage({ params }: Props) {
 
           {/* Brief */}
           <BriefSection startup={startup} />
+
+          {/* Email Draft */}
+          <EmailDraftSection 
+            startup={startup} 
+            founderEmail={startup.founders[0]?.email || startup.contactEmail || undefined} 
+          />
         </div>
       </div>
     </div>
