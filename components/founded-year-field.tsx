@@ -28,17 +28,7 @@ export function FoundedYearField({ startupId, value }: Props) {
 
   return (
     <div className="space-y-1">
-      <div className="flex items-center gap-1">
-        <span className="text-xs text-zinc-600">Founded</span>
-        {!editing && (
-          <button
-            onClick={() => { setEditing(true); setTimeout(() => inputRef.current?.focus(), 0); }}
-            className="text-zinc-700 hover:text-zinc-400 transition-colors"
-          >
-            <Pencil className="h-2.5 w-2.5" />
-          </button>
-        )}
-      </div>
+      <span className="text-xs text-zinc-600">Founded</span>
 
       {editing ? (
         <input
@@ -52,15 +42,17 @@ export function FoundedYearField({ startupId, value }: Props) {
           onKeyDown={(e) => { if (e.key === "Enter") handleCommit(); if (e.key === "Escape") setEditing(false); }}
           disabled={isPending}
           placeholder="e.g. 2021"
-          className="w-24 text-sm bg-zinc-800 border border-zinc-600 rounded px-2 py-0.5 text-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+          autoFocus
+          className="w-24 text-sm bg-zinc-800 border border-zinc-500 rounded px-2 py-0.5 text-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-400"
         />
       ) : (
-        <div
-          onClick={() => setEditing(true)}
-          className="text-sm text-zinc-300 cursor-pointer hover:text-zinc-100 transition-colors"
+        <button
+          onClick={() => { setEditing(true); setTimeout(() => inputRef.current?.focus(), 0); }}
+          className="group flex items-center gap-1.5 text-sm text-zinc-300 hover:text-zinc-100 transition-colors"
         >
-          {display ?? <span className="text-zinc-700 italic">—</span>}
-        </div>
+          {display ?? <span className="text-zinc-600 italic">Add year</span>}
+          <Pencil className="h-3 w-3 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+        </button>
       )}
     </div>
   );
