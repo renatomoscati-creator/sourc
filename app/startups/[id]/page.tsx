@@ -9,6 +9,7 @@ import { AddOutreachDialog } from "@/components/add-outreach-dialog";
 import { AddCallNoteDialog } from "@/components/add-call-note-dialog";
 import { ScoringGrid } from "@/components/scoring-grid";
 import { BriefSection } from "@/components/brief-section";
+import { OutreachEmailSection } from "@/components/outreach-email-section";
 import { EditContactDialog } from "@/components/edit-contact-dialog";
 import { ChevronLeft, ExternalLink, Mail, Linkedin, Phone } from "lucide-react";
 
@@ -253,6 +254,9 @@ export default async function StartupDetailPage({ params }: Props) {
               </div>
             )}
           </Section>
+
+          {/* Outreach Email Generator */}
+          <OutreachEmailSection startup={startup} />
 
           {/* Brief */}
           <BriefSection startup={startup} />
