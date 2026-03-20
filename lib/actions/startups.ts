@@ -95,7 +95,13 @@ export async function updateStartup(id: number, data: Partial<typeof startups.$i
 
   await db
     .update(startups)
-    .set({ ...data, updatedAt: new Date() })
+    .set({
+      ...data,
+      contactEmail: data.contactEmail?.trim() || null,
+      contactPhone: data.contactPhone?.trim() || null,
+      contactLinkedin: data.contactLinkedin?.trim() || null,
+      updatedAt: new Date(),
+    })
     .where(eq(startups.id, id));
 
   revalidatePath("/");

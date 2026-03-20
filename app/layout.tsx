@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
 import { ImportQueueBanner } from "@/components/import-queue-banner";
+import { UpdateQueueBanner } from "@/components/update-queue-banner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
         <Nav />
         <main className="flex-1">{children}</main>
         <ImportQueueBanner />
+        <UpdateQueueBanner />
       </body>
     </html>
   );

@@ -68,6 +68,9 @@ export const startups = sqliteTable("startups", {
   traction: text("traction"),
   fundingStatus: text("funding_status"),
   accelerator: text("accelerator"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  contactLinkedin: text("contact_linkedin"),
   // Scoring dimensions (1-10)
   scoreRelevance: real("score_relevance"),
   scoreStageFit: real("score_stage_fit"),

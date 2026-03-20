@@ -9,7 +9,7 @@ import { AddOutreachDialog } from "@/components/add-outreach-dialog";
 import { AddCallNoteDialog } from "@/components/add-call-note-dialog";
 import { ScoringGrid } from "@/components/scoring-grid";
 import { BriefSection } from "@/components/brief-section";
-import { ChevronLeft, ExternalLink, Mail, Linkedin } from "lucide-react";
+import { ChevronLeft, ExternalLink, Mail, Linkedin, Phone } from "lucide-react";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -98,6 +98,27 @@ export default async function StartupDetailPage({ params }: Props) {
                 <div>
                   <div className="text-xs text-zinc-600 mb-1">Notes</div>
                   <p className="text-sm text-zinc-400 leading-relaxed">{startup.notes}</p>
+                </div>
+              )}
+              {/* Contact */}
+              {(startup.contactEmail || startup.contactPhone || startup.contactLinkedin) && (
+                <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3 space-y-1.5">
+                  <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Contact</p>
+                  {startup.contactEmail && (
+                    <a href={`mailto:${startup.contactEmail}`} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors">
+                      <Mail className="h-3 w-3" />{startup.contactEmail}
+                    </a>
+                  )}
+                  {startup.contactPhone && (
+                    <a href={`tel:${startup.contactPhone}`} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors">
+                      <Phone className="h-3 w-3" />{startup.contactPhone}
+                    </a>
+                  )}
+                  {startup.contactLinkedin && (
+                    <a href={startup.contactLinkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors">
+                      <Linkedin className="h-3 w-3" />{startup.contactLinkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/company\//, "").replace(/\/$/, "")}
+                    </a>
+                  )}
                 </div>
               )}
             </div>

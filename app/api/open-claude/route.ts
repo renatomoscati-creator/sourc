@@ -12,12 +12,19 @@ function buildPrompt(sourceName: string, sourceUrl: string): string {
   return [
     `Use WebFetch or Bash/curl to read the page at: ${sourceUrl}`,
     `Extract every startup / portfolio company listed. For each one capture:`,
-    `  name, website, description, sector, stage (Pre-seed/Seed/Series A), foundedYear, accelerator, founders [{name, title}]`,
+    `  name, website, description, sector, stage (Pre-seed/Seed/Series A), foundedYear, accelerator`,
+    `  contactEmail (general company email), contactPhone, contactLinkedin (company LinkedIn page)`,
+    `  founders: [{name, title}]`,
     `Omit fields that are not mentioned. Skip events, blog posts, and non-company entries.`,
     `Write the results as a valid JSON array to: ${PROJECT_DIR}/data/import-queue.json`,
-    `Use this TypeScript type for each item:`,
-    `  { name: string; website?: string; description?: string; sector?: string; stage?: string; foundedYear?: number; accelerator?: string; founders?: [{name: string; title?: string}] }`,
+    `Each item must match: { name, website?, description?, sector?, stage?, foundedYear?, accelerator?,`,
+    `  contactEmail?, contactPhone?, contactLinkedin?, founders?: [{name, title?}] }`,
     `Source context: "${sourceName}"`,
+    ``,
+    `If instead you are enriching an EXISTING startup (e.g. you visited their website), write proposed`,
+    `changes to: ${PROJECT_DIR}/data/update-queue.json`,
+    `Format: [{ startupName: string, startupId?: number, changes: { ...fields to update } }]`,
+    `ALWAYS ask for confirmation before writing to update-queue.json.`,
   ].join("\n");
 }
 

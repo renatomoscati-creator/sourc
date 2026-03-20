@@ -16,6 +16,9 @@ const StartupSchema = z.object({
         name: z.string(),
         title: z.string().optional(),
       })).optional().describe("Founder names and titles if listed"),
+      contactEmail: z.string().optional().describe("General company contact email if listed"),
+      contactPhone: z.string().optional().describe("Company phone number if listed"),
+      contactLinkedin: z.string().optional().describe("Company LinkedIn page URL if listed"),
     })
   ).describe("All startups, companies, or portfolio companies found on this page"),
 });
@@ -43,6 +46,7 @@ export async function POST(req: Request) {
       prompt: `Extract all startups, portfolio companies, or ventures listed on this page.
 For each one, capture: name, website, description, sector/vertical, funding stage, founded year,
 accelerator/incubator affiliation, and founder names if available.
+If available, also capture a general company contact email, phone number, and LinkedIn company page URL.
 Focus on Milan-based or Italian startups. If a field is not mentioned, omit it.`,
       schema: StartupSchema,
     });
