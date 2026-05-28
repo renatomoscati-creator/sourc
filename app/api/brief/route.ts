@@ -3,7 +3,7 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import { generateBriefTemplate } from "@/lib/actions/brief";
 
 export async function POST(req: Request) {
-  const { startupId } = await req.json();
+  const { startupId, guidance } = await req.json();
 
   const template = await generateBriefTemplate(startupId);
 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 Keep exactly the same structure and sections. Improve the prose to be concise, professional, and presentation-ready.
 Use VC-standard language. Do not add information that is not in the source brief. Do not remove sections.
 Output valid markdown.`,
-    prompt: `Polish this sourcing brief for internal VC presentation:\n\n${template}`,
+    prompt: `Polish this sourcing brief for internal VC presentation:${guidance ? `\n\nAdditional guidance: ${guidance}` : ""}\n\n${template}`,
   });
 
   return result.toTextStreamResponse();

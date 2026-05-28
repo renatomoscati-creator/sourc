@@ -2,6 +2,12 @@
 
 import { getStartupById } from "@/lib/db/queries/startups";
 
+// Configure your sender identity via environment variables
+const SENDER_NAME = process.env.SENDER_NAME || "Your Name";
+const SENDER_ORG = process.env.SENDER_ORG || "Your Fund";
+const SENDER_EMAIL = process.env.SENDER_EMAIL || "you@example.com";
+const SENDER_LINKEDIN = process.env.SENDER_LINKEDIN || "";
+
 export async function generateEmailDraft(
   startupId: number,
   type: "initial" | "followup" | "call-request",
@@ -19,12 +25,12 @@ export async function generateEmailDraft(
   const product = startup.product;
 
   // Extract a specific detail from available info
-  const specificDetail = traction 
-    ? `your traction with "${traction.substring(0, 80)}${traction.length > 80 ? '...' : ''}"`
+  const specificDetail = traction
+    ? `your traction with "${traction.substring(0, 80)}${traction.length > 80 ? "..." : ""}"`
     : product
-    ? `your product approach with "${product.substring(0, 80)}${product.length > 80 ? '...' : ''}"`
+    ? `your product approach with "${product.substring(0, 80)}${product.length > 80 ? "..." : ""}"`
     : description
-    ? `your focus on "${description.substring(0, 80)}${description.length > 80 ? '...' : ''}"`
+    ? `your focus on "${description.substring(0, 80)}${description.length > 80 ? "..." : ""}"`
     : "your work in this space";
 
   const whyItMatters = traction
@@ -33,16 +39,18 @@ export async function generateEmailDraft(
     ? "it demonstrates a thoughtful approach to solving this problem"
     : "it aligns well with what we look for in early-stage companies";
 
-  const firstName = founderName.split(' ')[0];
+  const firstName = founderName.split(" ")[0];
+  const signature = `${SENDER_NAME}\n${SENDER_ORG}${SENDER_EMAIL ? `\n${SENDER_EMAIL}` : ""}${SENDER_LINKEDIN ? `\nLinkedIn: ${SENDER_LINKEDIN}` : ""}`;
+
   let subject = "";
   let body = "";
 
   if (language === "it") {
     if (type === "initial") {
-      subject = `Interesse per ${startup.name} | Innovis VC`;
+      subject = `Interesse per ${startup.name} | ${SENDER_ORG}`;
       body = `Gentile team di ${startup.name},
 
-mi chiamo Renato Moscati e faccio parte di Innovis VC a Milano.
+mi chiamo ${SENDER_NAME} e faccio parte di ${SENDER_ORG}.
 
 Ho recentemente approfondito ${startup.name} e ho trovato molto interessante il vostro lavoro nell'ambito di ${product || problem || sector}. Il tema che state affrontando, unito all'approccio tecnologico che state sviluppando, è pienamente in linea con le aree che monitoriamo con maggiore attenzione nel panorama early-stage.
 
@@ -52,10 +60,7 @@ Grazie in anticipo per l'attenzione.
 
 Cordiali saluti,
 
-Renato Moscati
-Innovis VC Milano
-renato.moscati@innovis.vc
-LinkedIn: https://www.linkedin.com/in/renato-moscati-b5a567328/`
+${signature}`;
     }
 
     if (type === "followup") {
@@ -73,19 +78,16 @@ Se il momento non è quello giusto, mi farebbe comunque piacere restare in conta
 Nessuna pressione — fammi sapere come preferisci procedere.
 
 Cordiali saluti,
-Renato Moscati
-Innovis VC Milano
-renato.moscati@innovis.vc
-LinkedIn: https://www.linkedin.com/in/renato-moscati-b5a567328/`
+${signature}`;
     }
 
     if (type === "call-request") {
-      subject = `${startup.name} / Innovis VC — Chiamata veloce?`;
+      subject = `${startup.name} / ${SENDER_ORG} — Chiamata veloce?`;
       body = `Caro ${firstName},
 
 spero che tu stia bene.
 
-Grazie per il collegamento. Mi piacerebbe organizzare una breve chiamata di 20 minuti per saperne di più su ${startup.name} e valutare una possibile collaborazione con Innovis VC.
+Grazie per il collegamento. Mi piacerebbe organizzare una breve chiamata di 20 minuti per saperne di più su ${startup.name} e valutare una possibile collaborazione con ${SENDER_ORG}.
 
 Qualcosa su di noi:
 • Investiamo nelle fasi pre-seed e seed
@@ -104,29 +106,23 @@ Se nessuno di questi dovesse andarti bene, proponimi pure un orario più comodo 
 A presto!
 
 Cordiali saluti,
-Renato Moscati
-Innovis VC Milano
-renato.moscati@innovis.vc
-LinkedIn: https://www.linkedin.com/in/renato-moscati-b5a567328/`
+${signature}`;
     }
   } else {
     if (type === "initial") {
-      subject = `${startup.name} x Innovis VC — ${accelerator ? `${accelerator} ` : ""}${sector} Opportunity`;
+      subject = `${startup.name} x ${SENDER_ORG} — ${accelerator ? `${accelerator} ` : ""}${sector} Opportunity`;
       body = `Dear ${firstName},
 
 I hope you are doing well.
 
-My name is Renato Moscati, and I am part of the Innovis VC hub in Milan. I recently came across ${startup.name} and was particularly interested in what you are building around ${product || problem || sector}. In particular, ${specificDetail} stood out to me, especially because ${whyItMatters}.
+My name is ${SENDER_NAME}, and I am part of ${SENDER_ORG}. I recently came across ${startup.name} and was particularly interested in what you are building around ${product || problem || sector}. In particular, ${specificDetail} stood out to me, especially because ${whyItMatters}.
 
 ${accelerator ? `It was also great to see that you are part of ${accelerator}. ` : ""}I spend a lot of time looking at early-stage companies in ${sector}, and ${startup.name} caught my attention because of the space you are addressing and the approach you seem to be taking.
 
 I would love to learn more about your vision, roadmap, and current progress. If you would be open to it, it would be great to either have a short call or simply exchange a few thoughts here by message, whichever is easier for you.
 
 Best regards,
-Renato Moscati
-Innovis VC Milan
-renato.moscati@innovis.vc
-LinkedIn: https://www.linkedin.com/in/renato-moscati-b5a567328/`
+${signature}`;
     }
 
     if (type === "followup") {
@@ -144,19 +140,16 @@ If now isn't the right time, I would still love to stay in touch and follow your
 No pressure either way — just let me know what works best for you.
 
 Best regards,
-Renato Moscati
-Innovis VC Milan
-renato.moscati@innovis.vc
-LinkedIn: https://www.linkedin.com/in/renato-moscati-b5a567328/`
+${signature}`;
     }
 
     if (type === "call-request") {
-      subject = `${startup.name} / Innovis VC — Quick Call?`;
+      subject = `${startup.name} / ${SENDER_ORG} — Quick Call?`;
       body = `Dear ${firstName},
 
 I hope you are doing well.
 
-Thank you for connecting. I would love to schedule a quick 20-minute call to learn more about ${startup.name} and explore potential fit with Innovis VC.
+Thank you for connecting. I would love to schedule a quick 20-minute call to learn more about ${startup.name} and explore potential fit with ${SENDER_ORG}.
 
 A bit about us:
 • We invest at pre-seed and seed stages
@@ -175,10 +168,7 @@ If none of these work, please feel free to suggest a time that is better for you
 Looking forward to speaking!
 
 Best regards,
-Renato Moscati
-Innovis VC Milan
-renato.moscati@innovis.vc
-LinkedIn: https://www.linkedin.com/in/renato-moscati-b5a567328/`
+${signature}`;
     }
   }
 

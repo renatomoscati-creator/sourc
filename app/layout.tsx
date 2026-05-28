@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Innovis Milan Sourcing",
-  description: "Internal VC sourcing tool for Innovis Milan",
+  title: "Agentic AI Sourcing Dashboard",
+  description: "AI-powered startup sourcing and pipeline management",
 };
 
 export default function RootLayout({

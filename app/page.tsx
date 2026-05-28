@@ -32,7 +32,7 @@ export default async function PipelinePage() {
 
       {/* Kanban board */}
       <div className="flex gap-4 overflow-x-auto pb-6">
-        {PIPELINE_STAGES.map((stage) => {
+        {PIPELINE_STAGES.filter(stage => !["Rejected/Archived", "Hell No", "Already Sourced"].includes(stage)).map((stage) => {
           const cards = (grouped[stage] ?? []) as StartupRow[];
           const isSelected = stage === "Selected for Presentation";
           return (

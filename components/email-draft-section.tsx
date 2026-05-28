@@ -22,6 +22,7 @@ export function EmailDraftSection({ startup, founderEmail }: Props) {
   const [isPending, startTransition] = useTransition();
   const [emailType, setEmailType] = useState<"initial" | "followup" | "call-request">("initial");
   const [language, setLanguage] = useState<"en" | "it">("it");
+  const [guidance, setGuidance] = useState("");
 
   function handleGenerate() {
     startTransition(async () => {
@@ -37,10 +38,11 @@ export function EmailDraftSection({ startup, founderEmail }: Props) {
       const res = await fetch("/api/email-draft", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          startupId: startup.id, 
+        body: JSON.stringify({
+          startupId: startup.id,
           currentDraft: draft.body,
-          type: emailType 
+          type: emailType,
+          guidance: guidance.trim() || undefined,
         }),
       });
       if (!res.ok) {
@@ -150,6 +152,17 @@ export function EmailDraftSection({ startup, founderEmail }: Props) {
             {isPending ? "Generating…" : draft ? "Regenerate" : "Generate Draft"}
           </Button>
         </div>
+      </div>
+
+      {/* Guidance input */}
+      <div className="mb-3">
+        <textarea
+          value={guidance}
+          onChange={(e) => setGuidance(e.target.value)}
+          placeholder="Guide the AI… e.g. 'mention their B2B pivot', 'be very brief', 'focus on the Milan ecosystem angle'"
+          rows={1}
+          className="w-full px-3 py-2 text-xs rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600 resize-none"
+        />
       </div>
 
       {!draft && !isPending && (

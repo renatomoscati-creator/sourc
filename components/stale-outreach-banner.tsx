@@ -26,7 +26,7 @@ export function StaleOutreachBanner({ items: initialItems }: { items: StaleItem[
 
   function handleAction(
     outreachId: number,
-    resolution: "followup" | "pending" | "closed"
+    resolution: "followup" | "pending" | "closed" | "replied"
   ) {
     startTransition(async () => {
       await resolveStaleOutreach(outreachId, resolution);
@@ -75,6 +75,13 @@ export function StaleOutreachBanner({ items: initialItems }: { items: StaleItem[
 
             {/* Actions */}
             <div className="flex gap-1.5 flex-shrink-0">
+              <button
+                disabled={pending}
+                onClick={() => handleAction(item.outreachId, "replied")}
+                className="text-xs px-2 py-1 rounded-md bg-emerald-900/50 text-emerald-300 hover:bg-emerald-800/60 disabled:opacity-50 border border-emerald-700/40"
+              >
+                Got a Reply
+              </button>
               <button
                 disabled={pending}
                 onClick={() => handleAction(item.outreachId, "followup")}

@@ -87,7 +87,7 @@ export async function getStartupById(id: number) {
 }
 
 export async function getStartupsGroupedByStatus() {
-  const all = await getStartups();
+  const all = await getStartups({ showHidden: true });
   const grouped: Record<string, typeof all> = {};
   for (const s of all) {
     if (!grouped[s.status]) grouped[s.status] = [];

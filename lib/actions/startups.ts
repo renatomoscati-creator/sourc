@@ -144,12 +144,13 @@ export async function linkSource(startupId: number, sourceId: number) {
 
 export async function resolveStaleOutreach(
   outreachId: number,
-  resolution: "followup" | "pending" | "closed"
+  resolution: "followup" | "pending" | "closed" | "replied"
 ) {
   const statusMap = {
     followup: "Follow-up Sent",
     pending: "No Response",
     closed: "Closed",
+    replied: "Replied",
   } as const;
 
   await db

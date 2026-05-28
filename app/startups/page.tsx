@@ -1,11 +1,11 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import { getStartups, getDistinctSectors, type SortField, type SortOrder } from "@/lib/db/queries/startups";
 import { getSources } from "@/lib/db/queries/sources";
-import { PIPELINE_STAGES, STARTUP_STAGES } from "@/lib/db/schema";
 import { AddStartupDialog } from "@/components/add-startup-dialog";
-import { Badge } from "@/components/ui/badge";
+import { StartupsFilters } from "@/components/startups-filters";
 import { cn } from "@/lib/utils";
 import { Mail, Phone, Linkedin, ChevronUp, ChevronDown } from "lucide-react";
 
@@ -23,12 +23,48 @@ const statusColors: Record<string, string> = {
   "Already Sourced": "bg-zinc-900 text-zinc-600",
 };
 
+function SortIcon({ field, sortBy, sortOrder }: { field: SortField; sortBy?: SortField; sortOrder?: SortOrder }) {
+  if (sortBy !== field) return <span className="w-3 h-3 inline-block" />;
+  return sortOrder === "asc"
+    ? <ChevronUp className="w-3 h-3 inline-block" />
+    : <ChevronDown className="w-3 h-3 inline-block" />;
+}
+
+function SortHeader({ field, sortBy, sortOrder, href, children }: { field: SortField; sortBy?: SortField; sortOrder?: SortOrder; href: string; children: React.ReactNode }) {
+  const isActive = sortBy === field;
+  return (
+    <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+      <Link
+        href={href}
+        className={cn(
+          "flex items-center gap-1 hover:text-zinc-200 transition-colors cursor-pointer",
+          isActive && "text-zinc-200"
+        )}
+      >
+        {children}
+        <SortIcon field={field} sortBy={sortBy} sortOrder={sortOrder} />
+      </Link>
+    </th>
+  );
+}
+
 interface Props {
-  searchParams: Promise<{ stage?: string; sector?: string; sourceId?: string; search?: string; hasContacts?: string; sortBy?: SortField; sortOrder?: SortOrder; showHidden?: string; status?: string }>;
+  searchParams: Promise<{
+    stage?: string;
+    sector?: string;
+    sourceId?: string;
+    search?: string;
+    hasContacts?: string;
+    sortBy?: SortField;
+    sortOrder?: SortOrder;
+    showHidden?: string;
+    status?: string;
+  }>;
 }
 
 export default async function StartupsPage({ searchParams }: Props) {
   const params = await searchParams;
+
   const [startups, sectors, sources] = await Promise.all([
     getStartups({
       stage: params.stage,
@@ -45,54 +81,17 @@ export default async function StartupsPage({ searchParams }: Props) {
     getSources(),
   ]);
 
-  function buildUrl(overrides: Record<string, string | undefined>) {
+  function buildSortUrl(field: SortField) {
     const p = new URLSearchParams();
-    const merged = { ...params, ...overrides };
+    const isActive = params.sortBy === field;
+    const nextOrder: SortOrder = (params.sortOrder === "asc" || !params.sortOrder) ? "desc" : "asc";
+    const merged: Record<string, string> = { ...params as Record<string, string> };
+    merged.sortBy = field;
+    merged.sortOrder = isActive ? nextOrder : "desc";
     for (const [k, v] of Object.entries(merged)) {
       if (v) p.set(k, v);
     }
     return `/startups?${p.toString()}`;
-  }
-
-  function SortIcon({ field }: { field: SortField }) {
-    if (params.sortBy !== field) return <span className="w-3 h-3 inline-block" />;
-    return params.sortOrder === "asc" 
-      ? <ChevronUp className="w-3 h-3 inline-block" />
-      : <ChevronDown className="w-3 h-3 inline-block" />;
-  }
-
-  function SortHeader({ field, children }: { field: SortField; children: React.ReactNode }) {
-    const isActive = params.sortBy === field;
-    const nextOrder: SortOrder = (params.sortOrder === "asc" || !params.sortOrder) ? "desc" : "asc";
-    const currentOrder = isActive ? params.sortOrder : undefined;
-
-    return (
-      <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
-        <form
-          method="GET"
-          action="/startups"
-          className="inline-flex items-center gap-1 hover:text-zinc-200 transition-colors cursor-pointer"
-        >
-          {params.stage && <input type="hidden" name="stage" value={params.stage} />}
-          {params.sector && <input type="hidden" name="sector" value={params.sector} />}
-          {params.sourceId && <input type="hidden" name="sourceId" value={params.sourceId} />}
-          {params.search && <input type="hidden" name="search" value={params.search} />}
-          {params.hasContacts && <input type="hidden" name="hasContacts" value={params.hasContacts} />}
-          <input type="hidden" name="sortBy" value={field} />
-          <input type="hidden" name="sortOrder" value={isActive ? nextOrder : "desc"} />
-          <button
-            type="submit"
-            className={cn(
-              "flex items-center gap-1 hover:text-zinc-200 transition-colors cursor-pointer text-left",
-              isActive && "text-zinc-200"
-            )}
-          >
-            {children}
-            <SortIcon field={field} />
-          </button>
-        </form>
-      </th>
-    );
   }
 
   return (
@@ -101,82 +100,17 @@ export default async function StartupsPage({ searchParams }: Props) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-zinc-100">Startups</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">{startups.length} result{startups.length !== 1 ? "s" : ""}</p>
+          <p className="text-sm text-zinc-500 mt-0.5">
+            {startups.length} result{startups.length !== 1 ? "s" : ""}
+          </p>
         </div>
         <AddStartupDialog sources={sources} />
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-2 mb-5">
-        {/* Search */}
-        <form method="GET" action="/startups">
-          {params.stage && <input type="hidden" name="stage" value={params.stage} />}
-          {params.sector && <input type="hidden" name="sector" value={params.sector} />}
-          {params.sourceId && <input type="hidden" name="sourceId" value={params.sourceId} />}
-          <input
-            name="search"
-            defaultValue={params.search}
-            placeholder="Search…"
-            className="h-8 px-3 text-sm rounded-md bg-zinc-900 border border-zinc-700 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 w-48"
-          />
-        </form>
-
-        {/* Stage filter */}
-        <div className="flex gap-1 flex-wrap">
-          <Link href={buildUrl({ stage: undefined })}
-            className={cn("px-2.5 py-1 text-xs rounded-md border transition-colors", !params.stage ? "bg-zinc-700 border-zinc-600 text-zinc-100" : "border-zinc-700 text-zinc-400 hover:text-zinc-200")}>
-            All stages
-          </Link>
-          {STARTUP_STAGES.map((s) => (
-            <Link key={s} href={buildUrl({ stage: s })}
-              className={cn("px-2.5 py-1 text-xs rounded-md border transition-colors", params.stage === s ? "bg-zinc-700 border-zinc-600 text-zinc-100" : "border-zinc-700 text-zinc-400 hover:text-zinc-200")}>
-              {s}
-            </Link>
-          ))}
-        </div>
-
-        {/* Sector filter */}
-        {sectors.length > 0 && (
-          <div className="flex gap-1 flex-wrap">
-            <Link href={buildUrl({ sector: undefined })}
-              className={cn("px-2.5 py-1 text-xs rounded-md border transition-colors", !params.sector ? "bg-zinc-700 border-zinc-600 text-zinc-100" : "border-zinc-700 text-zinc-400 hover:text-zinc-200")}>
-              All sectors
-            </Link>
-            {sectors.map((s) => (
-              <Link key={s} href={buildUrl({ sector: s })}
-                className={cn("px-2.5 py-1 text-xs rounded-md border transition-colors", params.sector === s ? "bg-zinc-700 border-zinc-600 text-zinc-100" : "border-zinc-700 text-zinc-400 hover:text-zinc-200")}>
-                {s}
-              </Link>
-            ))}
-          </div>
-        )}
-        {/* Show hidden toggle */}
-        <Link
-          href={buildUrl({ showHidden: params.showHidden === "1" ? undefined : "1" })}
-          className={cn(
-            "flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md border transition-colors",
-            params.showHidden === "1"
-              ? "bg-zinc-700 border-zinc-600 text-zinc-100"
-              : "border-zinc-700 text-zinc-500 hover:text-zinc-400"
-          )}
-        >
-          Show hidden (Hell No / Already Sourced)
-        </Link>
-
-        {/* Has contacts filter */}
-        <Link
-          href={buildUrl({ hasContacts: params.hasContacts === "1" ? undefined : "1" })}
-          className={cn(
-            "flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md border transition-colors",
-            params.hasContacts === "1"
-              ? "bg-emerald-950 border-emerald-700 text-emerald-300"
-              : "border-zinc-700 text-zinc-400 hover:text-zinc-200"
-          )}
-        >
-          <Mail className="h-3 w-3" />
-          Has contacts
-        </Link>
-      </div>
+      {/* Filters (client component — handles localStorage persistence) */}
+      <Suspense>
+        <StartupsFilters sectors={sectors} sources={sources.map(s => ({ id: s.id, name: s.name }))} />
+      </Suspense>
 
       {/* Table */}
       {startups.length === 0 ? (
@@ -189,13 +123,17 @@ export default async function StartupsPage({ searchParams }: Props) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-800 bg-zinc-900/60">
-                <SortHeader field="name">Name</SortHeader>
-                <SortHeader field="stage">Stage</SortHeader>
-                <SortHeader field="sector">Sector</SortHeader>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Source</th>
-                <SortHeader field="status">Status</SortHeader>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">Contacts</th>
-                <SortHeader field="priorityScore">Score</SortHeader>
+                <SortHeader field="name" sortBy={params.sortBy} sortOrder={params.sortOrder} href={buildSortUrl("name")}>Name</SortHeader>
+                <SortHeader field="stage" sortBy={params.sortBy} sortOrder={params.sortOrder} href={buildSortUrl("stage")}>Stage</SortHeader>
+                <SortHeader field="sector" sortBy={params.sortBy} sortOrder={params.sortOrder} href={buildSortUrl("sector")}>Sector</SortHeader>
+                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                  Source
+                </th>
+                <SortHeader field="status" sortBy={params.sortBy} sortOrder={params.sortOrder} href={buildSortUrl("status")}>Status</SortHeader>
+                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                  Contacts
+                </th>
+                <SortHeader field="priorityScore" sortBy={params.sortBy} sortOrder={params.sortOrder} href={buildSortUrl("priorityScore")}>Score</SortHeader>
               </tr>
             </thead>
             <tbody>
@@ -211,7 +149,9 @@ export default async function StartupsPage({ searchParams }: Props) {
                     <Link href={`/startups/${s.id}`} className="block">
                       <span className="font-medium text-zinc-100">{s.name}</span>
                       {s.website && (
-                        <span className="ml-2 text-xs text-zinc-600">{s.website.replace(/^https?:\/\//, "")}</span>
+                        <span className="ml-2 text-xs text-zinc-600">
+                          {s.website.replace(/^https?:\/\//, "")}
+                        </span>
                       )}
                     </Link>
                   </td>
@@ -221,10 +161,12 @@ export default async function StartupsPage({ searchParams }: Props) {
                     {s.startupSources[0]?.source?.name ?? "—"}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={cn(
-                      "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium",
-                      statusColors[s.status] ?? "bg-zinc-800 text-zinc-400"
-                    )}>
+                    <span
+                      className={cn(
+                        "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium",
+                        statusColors[s.status] ?? "bg-zinc-800 text-zinc-400"
+                      )}
+                    >
                       {s.status}
                     </span>
                   </td>

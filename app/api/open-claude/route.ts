@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   }
 
   // Write prompt to a temp file to avoid shell escaping issues with long strings
-  const promptPath = path.join(os.tmpdir(), "innovis-claude-prompt.txt");
+  const promptPath = path.join(os.tmpdir(), "sourc-claude-prompt.txt");
   const prompt = buildPrompt(sourceName, sourceUrl);
   fs.writeFileSync(promptPath, prompt, "utf-8");
 

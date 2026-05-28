@@ -45,5 +45,15 @@ next-env.d.ts
 /data/*.db-shm
 /data/*.db-wal
 
+# agent / script outputs
+*.pid
+logs/*.log
+agent_state.json
+
 # superpowers brainstorm sessions
 .superpowers/
+
+# Scraped data & local cache
+.firecrawl/
+data/
+Agent for Scraping and Sourcing/

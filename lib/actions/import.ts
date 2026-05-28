@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { startups, founders, startupSources, sources } from "@/lib/db/schema";
+import { startups, founders, startupSources } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import fs from "fs";
 import path from "path";
@@ -18,6 +18,11 @@ export interface ImportedStartup {
   contactEmail?: string;
   contactPhone?: string;
   contactLinkedin?: string;
+  city?: string;
+  fundingStatus?: string;
+  traction?: string;
+  notes?: string;
+  priorityScore?: number;
   founders?: { name: string; title?: string }[];
   sourceId?: number;
 }
@@ -25,9 +30,10 @@ export interface ImportedStartup {
 const QUEUE_PATH = path.join(process.cwd(), "data", "import-queue.json");
 
 // Called from the web UI after user reviews and confirms
-export async function confirmImport(items: ImportedStartup[]): Promise<{ imported: number; skipped: number }> {
+export async function confirmImport(items: ImportedStartup[]): Promise<{ imported: number; skipped: number; importedIds: number[] }> {
   let imported = 0;
   let skipped = 0;
+  const importedIds: number[] = [];
 
   for (const item of items) {
     if (!item.name?.trim()) { skipped++; continue; }
@@ -46,13 +52,21 @@ export async function confirmImport(items: ImportedStartup[]): Promise<{ importe
       stage: item.stage?.trim() || null,
       foundedYear: item.foundedYear || null,
       accelerator: item.accelerator?.trim() || null,
+      fundingStatus: item.fundingStatus?.trim() || null,
+      traction: item.traction?.trim() || null,
+      notes: item.notes?.trim() || null,
+      priorityScore: item.priorityScore ?? null,
       contactEmail: item.contactEmail?.trim() || null,
       contactPhone: item.contactPhone?.trim() || null,
       contactLinkedin: item.contactLinkedin?.trim() || null,
-      city: "Milan",
+      city: item.city || "Milan",
       status: "New",
       updatedAt: new Date(),
     }).returning();
+
+    if (startup) {
+      importedIds.push(startup.id);
+    }
 
     if (item.founders?.length && startup) {
       for (const f of item.founders) {
@@ -76,7 +90,7 @@ export async function confirmImport(items: ImportedStartup[]): Promise<{ importe
 
   revalidatePath("/");
   revalidatePath("/startups");
-  return { imported, skipped };
+  return { imported, skipped, importedIds };
 }
 
 // Read queue written by Claude Code agent
@@ -88,6 +102,22 @@ export async function readImportQueue(): Promise<ImportedStartup[]> {
   } catch {
     return [];
   }
+}
+
+// Check if startups from a list of names already exist in the database
+export async function findImportedStartups(names: string[]): Promise<{ name: string; id: number }[]> {
+  const results: { name: string; id: number }[] = [];
+  
+  for (const name of names) {
+    const existing = await db.query.startups.findFirst({
+      where: (s, { sql }) => sql`lower(${s.name}) = lower(${name.trim()})`,
+    });
+    if (existing) {
+      results.push({ name, id: existing.id });
+    }
+  }
+  
+  return results;
 }
 
 // Clear queue after processing

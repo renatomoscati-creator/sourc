@@ -8,7 +8,6 @@ const links = [
   { href: "/", label: "Pipeline" },
   { href: "/startups", label: "Startups" },
   { href: "/sources", label: "Sources" },
-  { href: "/import-registro", label: "📋 Registro" },
 ];
 
 export function Nav() {
@@ -18,7 +17,7 @@ export function Nav() {
     <nav className="border-b border-zinc-800 bg-zinc-950">
       <div className="max-w-screen-2xl mx-auto px-6 flex items-center gap-8 h-14">
         <span className="text-sm font-semibold text-zinc-100 tracking-tight">
-          Innovis <span className="text-zinc-500 font-normal">/ Milan Sourcing</span>
+          Agentic AI <span className="text-zinc-500 font-normal">/ Sourcing Dashboard</span>
         </span>
         <div className="flex items-center gap-1">
           {links.map((link) => {

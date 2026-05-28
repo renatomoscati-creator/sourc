@@ -82,7 +82,7 @@ export default async function StartupDetailPage({ params }: Props) {
             <StatusSelect startupId={startup.id} currentStatus={startup.status} />
             {startup.status === "Hell No" && startup.hiddenReason && (
               <p className="text-xs text-red-400/80 max-w-xs text-right italic">
-                "{startup.hiddenReason}"
+                &quot;{startup.hiddenReason}&quot;
               </p>
             )}
           </div>

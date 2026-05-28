@@ -3,8 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { confirmImport } from "@/lib/actions/import";
+import { confirmImport, findImportedStartups } from "@/lib/actions/import";
+import { deleteStartup } from "@/lib/actions/startups";
 import type { RegistroEntry } from "@/app/api/import/registro/route";
+import Link from "next/link";
+import { Trash2, CheckCircle2 } from "lucide-react";
 
 const PROVINCE_LABELS: Record<string, string> = {
   MI: "Milano", RM: "Roma", NA: "Napoli", TO: "Torino", BO: "Bologna",
@@ -21,7 +24,9 @@ export function ImportRegistroClient() {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [result, setResult] = useState<{ imported: number; skipped: number } | null>(null);
+  const [result, setResult] = useState<{ imported: number; skipped: number; importedIds: number[] } | null>(null);
+  const [importedMap, setImportedMap] = useState<Map<string, number>>(new Map());
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -33,8 +38,26 @@ export function ImportRegistroClient() {
     setLoading(false);
   }, [province, sector, page]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
-  useEffect(() => { setPage(1); }, [province, sector]);
+  useEffect(() => {
+    setTimeout(() => { void fetchData(); }, 0);
+  }, [fetchData]);
+  useEffect(() => {
+    setTimeout(() => { setPage(1); }, 0);
+  }, [province, sector]);
+
+  // Check which startups are already in the database
+  useEffect(() => {
+    if (!data?.items.length) return;
+    
+    const names = data.items.map(item => item.name);
+    findImportedStartups(names).then(results => {
+      const map = new Map<string, number>();
+      for (const r of results) {
+        map.set(r.name, r.id);
+      }
+      setImportedMap(map);
+    });
+  }, [data?.items]);
 
   const filtered = data?.items.filter(item =>
     !search || item.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -63,8 +86,33 @@ export function ImportRegistroClient() {
     setImporting(true);
     const res = await confirmImport(toImport);
     setResult(res);
+    
+    // Refresh the imported map
+    const names = data!.items.map(item => item.name);
+    findImportedStartups(names).then(results => {
+      const map = new Map<string, number>();
+      for (const r of results) {
+        map.set(r.name, r.id);
+      }
+      setImportedMap(map);
+    });
+    
     setImporting(false);
     setSelected(new Set());
+  };
+
+  const handleDelete = async (name: string) => {
+    const id = importedMap.get(name);
+    if (!id || !confirm(`Delete ${name} from the database? This action cannot be undone.`)) return;
+    
+    setDeleting(name);
+    await deleteStartup(id);
+    
+    // Update the imported map
+    const newMap = new Map(importedMap);
+    newMap.delete(name);
+    setImportedMap(newMap);
+    setDeleting(null);
   };
 
   return (
@@ -77,7 +125,7 @@ export function ImportRegistroClient() {
             {data ? `${data.total.toLocaleString()} AI / Software / R&D startups found` : "Loading…"}
           </p>
         </div>
-        <a href="/startups" className="text-xs text-zinc-500 hover:text-zinc-300 underline">← Back to Startups</a>
+        <Link href="/startups" className="text-xs text-zinc-500 hover:text-zinc-300 underline">← Back to Startups</Link>
       </div>
 
       {result && (
@@ -153,19 +201,24 @@ export function ImportRegistroClient() {
               <th className="text-left px-3 py-2 text-zinc-400 font-medium">ATECO</th>
               <th className="text-left px-3 py-2 text-zinc-400 font-medium">Founded</th>
               <th className="text-left px-3 py-2 text-zinc-400 font-medium">Website</th>
+              <th className="w-20 px-3 py-2 text-zinc-400 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/60">
             {loading ? (
-              <tr><td colSpan={7} className="px-3 py-8 text-center text-zinc-600">Loading…</td></tr>
+              <tr><td colSpan={8} className="px-3 py-8 text-center text-zinc-600">Loading…</td></tr>
             ) : filtered.length === 0 ? (
-              <tr><td colSpan={7} className="px-3 py-8 text-center text-zinc-600">No results</td></tr>
+              <tr><td colSpan={8} className="px-3 py-8 text-center text-zinc-600">No results</td></tr>
             ) : filtered.map((item, i) => (
               <tr
                 key={i}
                 onClick={() => setSelected(prev => {
                   const next = new Set(prev);
-                  next.has(i) ? next.delete(i) : next.add(i);
+                  if (next.has(i)) {
+                    next.delete(i);
+                  } else {
+                    next.add(i);
+                  }
                   return next;
                 })}
                 className={`cursor-pointer transition-colors ${selected.has(i) ? "bg-zinc-800/60" : "hover:bg-zinc-900/60"}`}
@@ -173,7 +226,14 @@ export function ImportRegistroClient() {
                 <td className="px-3 py-2">
                   <input type="checkbox" readOnly checked={selected.has(i)} className="accent-zinc-400" />
                 </td>
-                <td className="px-3 py-2 font-medium text-zinc-200">{item.name}</td>
+                <td className="px-3 py-2 font-medium text-zinc-200">
+                  <div className="flex items-center gap-2">
+                    <div className="truncate" title={item.name}>{item.name}</div>
+                    {importedMap.has(item.name) && (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
+                    )}
+                  </div>
+                </td>
                 <td className="px-3 py-2 text-zinc-400">{item.city ?? "—"}</td>
                 <td className="px-3 py-2">
                   <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
@@ -192,6 +252,39 @@ export function ImportRegistroClient() {
                       {item.website.replace(/^https?:\/\//, "")}
                     </a>
                   ) : "—"}
+                </td>
+                <td className="px-3 py-2">
+                  <div className="flex items-center gap-1">
+                    {importedMap.has(item.name) && (
+                      <>
+                        <Link
+                          href={`/startups/${importedMap.get(item.name)}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-xs text-zinc-400 hover:text-zinc-200"
+                          title="View startup"
+                        >
+                          View
+                        </Link>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 text-zinc-600 hover:text-red-400"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(item.name);
+                          }}
+                          disabled={deleting === item.name}
+                          title="Delete startup"
+                        >
+                          {deleting === item.name ? (
+                            <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-zinc-400 border-t-transparent" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

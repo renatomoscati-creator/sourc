@@ -10,7 +10,7 @@ const anthropic = createAnthropic({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { startupId, currentDraft, type } = body;
+    const { startupId, currentDraft, type, guidance } = body;
 
     if (!startupId || !currentDraft) {
       return NextResponse.json(
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const systemPrompt = `You are an expert email writer helping Renato Moscati from Innovis VC Milan polish outreach emails to startup founders.
+    const systemPrompt = `You are an expert email writer helping polish outreach emails to startup founders.
 
 Your role is to:
 - Make emails warm, professional, and respectful of the founder's time
@@ -36,14 +36,14 @@ Your role is to:
 - Use European business communication style (slightly more formal than US)
 - Ensure the tone is genuine interest, not salesy
 - Keep emails under 250 words when possible
-- Maintain consistency with Renato's identity at Innovis VC Milan
+- Maintain a consistent, professional sender voice
 
 Style guidelines:
 - Use "I hope you are doing well" as opening
 - Write "I would love to" instead of "I'd love to" (avoid contractions in formal parts)
 - Use "it would be great to" instead of "it'd be great to"
 - End with "Best regards," followed by full signature
-- Always include: renato.moscati@innovis.vc and LinkedIn URL
+- Preserve the sender signature at the end of the email
 - Reference Milan hub when relevant
 - Be specific about what caught attention
 
@@ -54,7 +54,7 @@ Do NOT:
 - Change the fundamental ask or call-to-action
 - Use overly casual American expressions`;
 
-    const userPrompt = `Polish this ${type || "outreach"} email to a startup founder.
+    const userPrompt = `Polish this ${type || "outreach"} email to a startup founder.${guidance ? `\n\nAdditional guidance from the user: ${guidance}` : ""}
 
 Startup context:
 - Name: ${startup.name}
