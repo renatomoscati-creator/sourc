@@ -58,3 +58,23 @@ agent_state.json
 data/
 Agent for Scraping and Sourcing/
 graphify-out/
+
+# Internal AI tooling & config
+.agents/
+.claude/
+.firecrawl/
+.qwen/
+.superpowers/
+.graphify/
+graphify-out/
+
+# Internal data & results
+creandum-scout/
+data/
+logs/
+skills/
+
+# Internal agent docs
+agent_log.md
+CLAUDE.md
+AGENTS.md
