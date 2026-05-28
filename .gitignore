@@ -57,3 +57,4 @@ agent_state.json
 .firecrawl/
 data/
 Agent for Scraping and Sourcing/
+graphify-out/
