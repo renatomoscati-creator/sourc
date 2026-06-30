@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { streamText } from "ai";
-import { createAnthropic } from "@ai-sdk/anthropic";
+import { getModel, aiConfigured, aiConfigError } from "@/lib/ai";
 import { getStartupById } from "@/lib/db/queries/startups";
-
-const anthropic = createAnthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,6 +13,10 @@ export async function POST(request: NextRequest) {
         { error: "Missing required fields" },
         { status: 400 }
       );
+    }
+
+    if (!aiConfigured()) {
+      return NextResponse.json({ error: aiConfigError() }, { status: 400 });
     }
 
     const startup = await getStartupById(startupId);
@@ -70,7 +70,7 @@ ${currentDraft}
 Return ONLY the polished email body, no explanations or metadata.`;
 
     const result = streamText({
-      model: anthropic("claude-sonnet-4-20250514"),
+      model: getModel(),
       system: systemPrompt,
       prompt: userPrompt,
     });

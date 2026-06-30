@@ -1,5 +1,5 @@
 import { streamText } from "ai";
-import { createAnthropic } from "@ai-sdk/anthropic";
+import { getModel, aiConfigured, aiConfigError } from "@/lib/ai";
 import { generateBriefTemplate } from "@/lib/actions/brief";
 
 export async function POST(req: Request) {
@@ -7,18 +7,15 @@ export async function POST(req: Request) {
 
   const template = await generateBriefTemplate(startupId);
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return new Response(
-      JSON.stringify({ error: "ANTHROPIC_API_KEY not set in .env.local" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
-    );
+  if (!aiConfigured()) {
+    return new Response(JSON.stringify({ error: aiConfigError() }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
-  const anthropic = createAnthropic({ apiKey });
-
   const result = streamText({
-    model: anthropic("claude-sonnet-4-5"),
+    model: getModel(),
     system: `You are a venture capital analyst assistant. Your task is to polish a startup sourcing brief.
 Keep exactly the same structure and sections. Improve the prose to be concise, professional, and presentation-ready.
 Use VC-standard language. Do not add information that is not in the source brief. Do not remove sections.

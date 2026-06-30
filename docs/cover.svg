@@ -1,0 +1,53 @@
+<svg width="1280" height="420" viewBox="0 0 1280 420" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0a0b"/>
+      <stop offset="1" stop-color="#101014"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#34d399"/>
+      <stop offset="1" stop-color="#10b981"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="420" fill="url(#bg)"/>
+
+  <!-- faint kanban / pipeline motif, right side -->
+  <g opacity="0.16" stroke="#3f3f46" stroke-width="1.5" fill="none">
+    <rect x="812"  y="96"  width="96" height="228" rx="10"/>
+    <rect x="924"  y="96"  width="96" height="228" rx="10"/>
+    <rect x="1036" y="96"  width="96" height="228" rx="10"/>
+    <rect x="1148" y="96"  width="96" height="228" rx="10"/>
+  </g>
+  <g opacity="0.5" fill="#18181b" stroke="#27272a" stroke-width="1.5">
+    <rect x="824"  y="112" width="72" height="40" rx="7"/>
+    <rect x="824"  y="160" width="72" height="40" rx="7"/>
+    <rect x="936"  y="112" width="72" height="40" rx="7"/>
+    <rect x="1048" y="112" width="72" height="40" rx="7"/>
+    <rect x="1048" y="160" width="72" height="40" rx="7"/>
+    <rect x="1048" y="208" width="72" height="40" rx="7"/>
+    <rect x="1160" y="112" width="72" height="40" rx="7"/>
+  </g>
+  <!-- one highlighted card -->
+  <rect x="1160" y="160" width="72" height="40" rx="7" fill="#064e3b" stroke="#34d399" stroke-width="1.5" opacity="0.85"/>
+
+  <!-- wordmark -->
+  <text x="96" y="196" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="104" font-weight="700" fill="#fafafa" letter-spacing="-3">Sourc</text>
+  <rect x="100" y="220" width="118" height="6" rx="3" fill="url(#accent)"/>
+
+  <!-- tagline -->
+  <text x="100" y="276" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="29" font-weight="500" fill="#d4d4d8">Agentic AI startup sourcing &amp; deal-flow management</text>
+  <text x="100" y="314" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="20" font-weight="400" fill="#71717a">Self-hosted &#183; SQLite &#183; bring your own model</text>
+
+  <!-- stack chips -->
+  <g font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="500">
+    <rect x="100" y="344" width="104" height="32" rx="16" fill="#18181b" stroke="#27272a"/>
+    <text x="152" y="365" fill="#a1a1aa" text-anchor="middle">Next.js 16</text>
+    <rect x="214" y="344" width="92" height="32" rx="16" fill="#18181b" stroke="#27272a"/>
+    <text x="260" y="365" fill="#a1a1aa" text-anchor="middle">React 19</text>
+    <rect x="316" y="344" width="88" height="32" rx="16" fill="#18181b" stroke="#27272a"/>
+    <text x="360" y="365" fill="#a1a1aa" text-anchor="middle">AI SDK v6</text>
+    <rect x="414" y="344" width="78" height="32" rx="16" fill="#18181b" stroke="#27272a"/>
+    <text x="453" y="365" fill="#a1a1aa" text-anchor="middle">Drizzle</text>
+  </g>
+</svg>
